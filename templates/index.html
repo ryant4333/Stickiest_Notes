@@ -1,0 +1,102 @@
+<!doctype html>
+<head>
+    <title>Hello Azure - Python Quickstart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<html>
+   <body>
+      <main>
+        <div class="container">
+          <div id="recoding-length" class="recording-length"></div>
+          <div class="button-container">
+              <button id="recording-controller" type="button" class="btn btn-primary btn-lg btn-block mb-3">Start Recording</button>
+          </div>
+          <div class="button-container">
+              <button id="upload-recording" type="button" class="btn btn-primary btn-lg btn-block">Upload Recording</button>
+          </div>
+        </div>
+      </main>      
+   </body>
+   <script>
+    var isRecording = false;
+    var blob = null;
+    var recordingStartTime = null;
+    var recordingLength = 0;
+
+    document.getElementById('recording-controller').addEventListener('click', function() {
+      if (isRecording) {
+        document.getElementById('recording-controller').innerHTML = 'Start Recording';
+        document.getElementById('upload-recording').disabled = false;
+        audioRecorder.stop();
+        isRecording = false;
+        recordingLength = Date.now() - recordingStartTime;
+        var minutes = Math.floor(recordingLength / 60000);
+        var seconds = ((recordingLength % 60000) / 1000).toFixed(0);
+        document.getElementById('recoding-length').innerHTML = 'Recording length: ' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds ;
+      } else {
+        document.getElementById('recording-controller').innerHTML = 'Stop Recording';
+        document.getElementById('upload-recording').disabled = true;
+        audioRecorder.start();
+        recordingStartTime = Date.now()
+        isRecording = true;
+      }
+    });
+
+    document.getElementById('upload-recording').addEventListener('click', function() {
+      var button = document.getElementById('upload-recording');
+      button.textContent = 'Uploading...';
+      button.disabled = true;
+
+      var formData = new FormData();
+      console.log('FormData object created.');
+      formData.append('audio', blob, 'audio_recording.ogg');
+      console.log('Preparing to send audio data to server...');
+      fetch('/upload', { method: 'POST', body: formData })
+        .then(
+          response => console.log('Audio data sent to server. Response: ' + response);
+          button.textContent = 'Upload Recording';
+          button.disabled = false;)
+        .catch(error => console.log('Error sending audio data to server: ' + error));
+    });
+
+    var audioRecorder = {
+      mediaRecorder: null,
+      chunks: [],
+
+      start: function () {
+        if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+          return Promise.reject(new Error('mediaDevices API or getUserMedia method is not supported in this browser.'));
+        } else {
+          return navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+              this.mediaRecorder = new MediaRecorder(stream);
+              this.mediaRecorder.start();
+              console.log('MediaRecorder started', this.mediaRecorder);
+
+              this.mediaRecorder.ondataavailable = e => {
+                this.chunks.push(e.data);
+              };
+            });
+        }
+      },
+
+      stop: function () {
+        if (this.mediaRecorder) {
+            this.mediaRecorder.onstop = () => {
+              blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
+              this.chunks = [];
+              var audioURL = window.URL.createObjectURL(blob);
+              // console.log('Audio data available at URL: ' + audioURL);
+              
+            };
+            
+            this.mediaRecorder.stop();
+            console.log('Recording stopped.');
+
+        };
+      }
+    };
+    </script>
+</html>
