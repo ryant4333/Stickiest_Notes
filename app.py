@@ -48,11 +48,14 @@ def upload_file():
         print(file.filename)
         ogg_path = os.path.join('uploads', file.filename)
         file.save(ogg_path)
+        print("File saved to " + ogg_path)
 
         
 
         # Convert .ogg to .wav
-        audio = AudioSegment.from_ogg(ogg_path)
+        # ogg_to_wav(ogg_path)
+        audio = AudioSegment.from_ogg(file)
+        print(type(audio))
         wav_path = os.path.splitext(ogg_path)[0] + "_" + timestamp + '.wav'
         audio.export(wav_path, format='wav')
         print('File uploaded successfully')
@@ -61,6 +64,10 @@ def upload_file():
         print('Error uploading file: ' + str(e))
         return 'Error uploading file', 500
 
+
+def ogg_to_wav(path_to_ogg):
+    audio = AudioSegment.from_ogg(path_to_ogg)
+    audio.export(path_to_ogg, format='wav')
 
 if __name__ == '__main__':
    app.run()

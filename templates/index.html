@@ -26,6 +26,7 @@
     var recordingLength = 0;
 
     document.getElementById('recording-controller').addEventListener('click', function() {
+      console.log('Recording button clicked.');
       if (isRecording) {
         document.getElementById('recording-controller').innerHTML = 'Start Recording';
         document.getElementById('upload-recording').disabled = false;
@@ -45,19 +46,21 @@
     });
 
     document.getElementById('upload-recording').addEventListener('click', function() {
+      console.log('Upload button clicked.');
       var button = document.getElementById('upload-recording');
       button.textContent = 'Uploading...';
       button.disabled = true;
 
       var formData = new FormData();
       console.log('FormData object created.');
-      formData.append('audio', blob, 'audio_recording.ogg');
+      formData.append('audio', blob, 'test.ogg');
       console.log('Preparing to send audio data to server...');
       fetch('/upload', { method: 'POST', body: formData })
-        .then(
-          response => console.log('Audio data sent to server. Response: ' + response);
+        .then(response => {
+          console.log('Audio data sent to server. Response: ' + response);
           button.textContent = 'Upload Recording';
-          button.disabled = false;)
+          button.disabled = false;
+        })
         .catch(error => console.log('Error sending audio data to server: ' + error));
     });
 
@@ -88,7 +91,7 @@
               blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
               this.chunks = [];
               var audioURL = window.URL.createObjectURL(blob);
-              // console.log('Audio data available at URL: ' + audioURL);
+              console.log('Audio data available at URL: ' + audioURL);
               
             };
             

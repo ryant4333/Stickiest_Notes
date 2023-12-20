@@ -16,12 +16,20 @@
 
 import asyncio
 from openai import AsyncOpenAI
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OAI_API_KEY = os.getenv("oai_api_key")
+print(OAI_API_KEY)
 
 client = AsyncOpenAI(
-    # defaults to os.environ.get("OPENAI_API_KEY")
-    api_key="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",
-)
 
+    api_key=OAI_API_KEY
+)
+print(client)
 
 async def main() -> None:
 
@@ -95,4 +103,3 @@ print(compl.message.content)
 people_file = open("./People.md", "w")
 people_file.write(compl.message.content)
 people_file.close()
-
