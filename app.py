@@ -54,10 +54,10 @@ def upload_file():
 
         # Convert .ogg to .wav
         # ogg_to_wav(ogg_path)
-        audio = AudioSegment.from_ogg(file)
-        print(type(audio))
-        wav_path = os.path.splitext(ogg_path)[0] + "_" + timestamp + '.wav'
-        audio.export(wav_path, format='wav')
+        # audio = AudioSegment.from_ogg(file)
+        # print(type(audio))
+        # wav_path = os.path.splitext(ogg_path)[0] + "_" + timestamp + '.wav'
+        # audio.export(wav_path, format='wav')
         print('File uploaded successfully')
         return 'File uploaded successfully'
     except Exception as e:

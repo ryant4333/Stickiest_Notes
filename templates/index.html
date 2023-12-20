@@ -53,7 +53,7 @@
 
       var formData = new FormData();
       console.log('FormData object created.');
-      formData.append('audio', blob, 'test.ogg');
+      formData.append('audio', blob, 'test.webm');
       console.log('Preparing to send audio data to server...');
       fetch('/upload', { method: 'POST', body: formData })
         .then(response => {
@@ -68,6 +68,8 @@
       mediaRecorder: null,
       chunks: [],
 
+      
+
       start: function () {
         if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
           return Promise.reject(new Error('mediaDevices API or getUserMedia method is not supported in this browser.'));
@@ -75,6 +77,7 @@
           return navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
               this.mediaRecorder = new MediaRecorder(stream);
+              console.log('MediaRecorder created: ' + this.mediaRecorder.mimeType)
               this.mediaRecorder.start();
               console.log('MediaRecorder started', this.mediaRecorder);
 
@@ -88,7 +91,7 @@
       stop: function () {
         if (this.mediaRecorder) {
             this.mediaRecorder.onstop = () => {
-              blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
+              blob = new Blob(this.chunks, { 'type' : 'audio/webm' });
               this.chunks = [];
               var audioURL = window.URL.createObjectURL(blob);
               console.log('Audio data available at URL: ' + audioURL);
@@ -101,5 +104,8 @@
         };
       }
     };
+
+  
+
     </script>
 </html>
